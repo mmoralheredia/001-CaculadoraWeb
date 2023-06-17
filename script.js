@@ -2,133 +2,187 @@ let currentScreen = document.getElementById('screenOne')
 let afterScreen = document.getElementById('screenTwo')
 let buttons = document.querySelectorAll('.keyboard input')
 
-currentScreen.value = '0'
-afterScreen.value = '0'
 
-let valueOne = ''
-let valueTwo = ''
-let currentOperation = ''
-let afterOperation = ''
-let secondValue = false
+currentScreen.placeholder = '0'
+currentScreen.value = '0'
+afterScreen.value = ''
+
 let result = ''
 let decimalPoint = false
+let decimalInCurrentValue = false
+let equalButton = false
+let lastBottomOperation = false
+
 
 buttons.forEach(button => {
     button.addEventListener('click', () => {
-
         if (button.id === "number") {
-            writingNumbers(button.value)
+            if (button.value === '0' & lastBottomOperation === true
+                || button.value === '0' & afterScreen.value === '0'
+                || button.value === '0' & afterScreen.value === ''
+                || button.value === '0' & equalButton === true) {
+                null
+
+            } else if (equalButton === true) {
+                afterScreen.value = ''
+                currentScreen.value = '0'
+                writingInScreen(button.value)
+                equalButton = false
+
+            } else {
+                writingInScreen(button.value)
+            }
 
         } else if (button.id === "operation") {
+
             if (button.value === '=') {
                 equalOperation()
+            } else if (equalButton === true) {
+                afterScreen.value = currentScreen.value
+                currentScreen.value = '0'
+                mathOperation(button.value)
+                equalButton = false
             } else {
                 mathOperation(button.value)
-                afterOperation = currentOperation
             }
 
         } else if (button.id === "function") {
             clearOrDelete(button.value)
 
         } else if (button.id === 'decimalPoint') {
-            if (currentScreen.value.includes('.') === false) {
+            if (decimalInCurrentValue === false & afterScreen.value === '') {
+                afterScreen.value = '0.'
+                currentScreen.value = ''
+                result = eval(afterScreen.value)
+                currentScreen.placeholder = result
+                decimalInCurrentValue = true
+
+            } else if (decimalInCurrentValue === false & lastBottomOperation === true) {
+                afterScreen.value += '0.'
+                currentScreen.value = ''
+                result = eval(afterScreen.value)
+                currentScreen.placeholder = result
+                decimalInCurrentValue = true
+                lastBottomOperation = false
+
+            } else if (equalButton == true) {
+                afterScreen.value = '0.'
+                currentScreen.value = ''
+                result = eval(afterScreen.value)
+                currentScreen.placeholder = result
+                decimalInCurrentValue = true
+                equalButton = false
+
+            } else if (decimalInCurrentValue === false) {
                 decimalPoint = true
             } else {
                 null
             }
+        }
+
+        if (currentScreen.placeholder === 'Infinity') {
+            currentScreen.placeholder = "error"
+        } else {
+            null
         }
     })
 });
 
 
 //Declaración de las funciones utilizadas
-function writingNumbers(value) {
+function writingInScreen(value) {
+
     if (decimalPoint === true) {
-        currentScreen.value += '.' + value
+        afterScreen.value += '.' + value
+        decimalInCurrentValue = true
         decimalPoint = false
 
-    } else if (currentScreen.value === '0') {
-        currentScreen.value = value
+    } else if (afterScreen.value === '' & equalButton === true) {
+        afterScreen.value = value
 
     } else {
-        currentScreen.value += value
+        afterScreen.value += value
     }
+
+    currentScreen.value = ''
+    result = eval(afterScreen.value)
+    currentScreen.placeholder = result
+    lastBottomOperation = false
 }
+
+
 
 function clearOrDelete(value) {
+
     if (value === 'AC') {
+        afterScreen.value = ''
         currentScreen.value = '0'
-        afterScreen.value = '0'
-        valueOne = ''
-        valueTwo = ''
-        currentOperation = ''
-        secondValue = false
-        result = ''
-        decimalPoint = false
+        currentScreen.placeholder = '0'
 
     } else if (value === '<<') {
-        if (currentScreen.value[currentScreen.value.length - 2] === '.') {
-            currentScreen.value = currentScreen.value.slice(0, -2)
+        if (equalButton) {
+            clearOrDelete('AC')
+            equalButton = false
 
-        } else if (decimalPoint === true) {
-            currentScreen.value = currentScreen.value.slice(0, -1)
-            decimalPoint = false
-
-        } else if (currentScreen.value.length === 1) {
+        } else if (afterScreen.value.length <= 1) {
+            afterScreen.value = ''
             currentScreen.value = '0'
 
+        } else if (afterScreen.value[afterScreen.value.length - 2] === '.'
+            || afterScreen.value[afterScreen.value.length - 2] === '+'
+            || afterScreen.value[afterScreen.value.length - 2] === '-'
+            || afterScreen.value[afterScreen.value.length - 2] === '*'
+            || afterScreen.value[afterScreen.value.length - 2] === '/') {
+            afterScreen.value = afterScreen.value.slice(0, -2)
+            result = eval(afterScreen.value)
+            currentScreen.placeholder = result
+
         } else {
-            currentScreen.value = currentScreen.value.slice(0, -1)
+            afterScreen.value = afterScreen.value.slice(0, -1)
+            result = eval(afterScreen.value)
+            currentScreen.placeholder = result
         }
     }
+
+    decimalInCurrentValue = false
+    decimalPoint = false
+    lastBottomOperation = false
+    equalButton = false
 }
+
+
 
 function mathOperation(value) {
-    if (secondValue === true & currentScreen.value === '0') {
+
+    if (afterScreen.value != '' & lastBottomOperation === false) {
+        afterScreen.value += value
+
+    } else if (lastBottomOperation === true & afterScreen.value != '') {
         afterScreen.value = afterScreen.value.slice(0, -1)
-        currentOperation = value
-        afterScreen.value = afterScreen.value + value
-
-    } else if (secondValue === true & currentScreen.value != '0') {
-        console.log('estoy aquí')
-        equalOperation()
-
-        //!operación de encadenar operaciones
-
-    } else {
-        valueOne = parseFloat(currentScreen.value)
-        currentOperation = value
-        afterScreen.value = currentScreen.value + value
-        currentScreen.value = '0'
-        secondValue = true
-    }
-}
-
-function equalOperation() {
-    afterScreen.value += currentScreen.value
-    valueTwo = parseFloat(currentScreen.value)
-
-    switch (currentOperation) {
-        case '+':
-            result = valueOne + valueTwo
-            break;
-        case '-':
-            result = valueOne - valueTwo
-            break;
-        case 'x':
-            result = valueOne * valueTwo
-            break;
-        case '/':
-            result = valueOne / valueTwo
-            break;
-        default:
-            break;
-    }
-
-    if (result == 'Infinity') {
-        result = 'Error'
+        afterScreen.value += value
     } else {
         null
     }
-    currentScreen.value = result
+    decimalInCurrentValue = false
+    lastBottomOperation = true
+}
+
+
+
+function equalOperation() {
+
+    if (afterScreen.value[afterScreen.value.length - 1] === '.') {
+        afterScreen.value = afterScreen.value.slice(0, -1)
+        result = eval(afterScreen.value)
+        currentScreen.value = result
+        equalButton = true
+
+    } else if (afterScreen.value != '' & lastBottomOperation === false) {
+        result = eval(afterScreen.value)
+        currentScreen.value = result
+        equalButton = true
+    } else {
+        null
+    }
+
 }

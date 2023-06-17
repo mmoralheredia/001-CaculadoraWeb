@@ -60,6 +60,7 @@ body {
     text-align: right;
     font-size: 22px;
     background-color: rgba(0, 0, 0, 0.0);
+    color: black;
 }
 
 .keyboard {
@@ -100,4 +101,17 @@ input[value='0'] {
 
 input[value='='] {
     grid-row: span 2;
+}
+
+/* Animación del puntero */
+.circle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: red;
+    opacity: 0;
+    transition: all 0.3s ease-out;
 }
