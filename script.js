@@ -18,15 +18,7 @@ window.addEventListener("keydown", (event) => {
         || event.key === "-" || event.key === "*" || event.key === "/" || event.key === "Enter"
         || event.key === "Backspace" || event.key === "Escape") {
         buttons.forEach((button) => {
-            if (button.value === event.key) {
-                button.click()
-            } else if (event.key === "*" && button.value === "x") {
-                button.click()
-            } else if (event.key === "Enter" && button.value === "=") {
-                button.click()
-            } else if (event.key === "Backspace" && button.value === "<<") {
-                button.click()
-            } else if (event.key === "Escape" && button.value === "AC") {
+            if (button.value === event.key || event.key === "*" && button.value === "x" || event.key === "Enter" && button.value === "=" || event.key === "Backspace" && button.value === "<<" || event.key === "Escape" && button.value === "AC") {
                 button.click()
             }
         })
@@ -59,8 +51,6 @@ buttons.forEach(button => {
                 lastButtonIsOperation = false
             } else if (screen.value.includes('.') === false) {
                 decimalPoint = true
-            } else {
-                null
             }
         }
     })
@@ -126,8 +116,6 @@ function mathOperation(value) {
 function equalOperation() {
     if (!lastButtonIsEqual) {
         valueTwo = parseFloat(screen.value)
-    } else {
-        null
     }
 
     if (currentOperation != '') {
@@ -149,15 +137,11 @@ function equalOperation() {
         }
         if (result == 'Infinity') {
             result = 'Error!'
-        } else {
-            null
         }
         screen.value = result
         valueOne = result
         lastButtonIsEqual = true
         lastButtonIsOperation = false
         secondValue = false
-    } else {
-        null
     }
 }
